@@ -1,0 +1,14 @@
+{
+    "userinfo": [
+        {
+            "user": "Admin",
+            "password": "souls",
+            "email": "nemesai99@gmail.com"
+        },
+        {
+            "user": "Guest",
+            "password": "sfo",
+            "email": ""
+        }
+    ]
+}

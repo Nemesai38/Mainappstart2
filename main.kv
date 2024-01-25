@@ -1,0 +1,592 @@
+<FieldCustom@MDTextField>
+    normal_color: "#001a00"
+    icon_right_color: 1, 1, 1, 1
+    mode: "fill"
+    write_tab: False
+    width: 300
+    font_size: 20
+
+<SplashLabel@MDLabel>
+    theme_text_color: "Custom"
+    text_color: 166/255, 166/255, 166/255, .9
+    font_size: "50dp"
+    font_name: "Speed"
+
+
+ScreenManager:
+    SplashScreen:
+    HomeScreen:
+    SigninScreen:
+    SignupScreen:
+    ConfirmScreen:
+    SplashScreen2:
+    AdmSigninScreen:
+    GstSigninScreen:
+    HubScreen:
+
+<SplashScreen>:
+    name: "splashscreen"
+    FitImage:
+        source: "fotos/splash.jpg"
+    BoxLayout:
+        orientation: "vertical"
+        size_hint_y: None
+        height: "200dp"
+        pos_hint: {'center_x': .5, 'center_y': .5}
+        MDLabel:
+            text: "COMD"
+            halign: "center"
+            theme_text_color: "Custom"
+            text_color: 2/255, 95/255, 4/255, .8
+            font_size: "92dp"
+            font_name: "Speed"
+        MDLabel:
+            text: "DB"
+            halign: "center"
+            theme_text_color: "Custom"
+            text_color: 2/255, 95/255, 4/255, .8
+            font_size: "92dp"
+            font_name: "Speed"
+
+<HomeScreen>:
+    name: "homescreen"
+    FitImage:
+        source: "fotos/mainscreen.jpg"
+    MDCard:
+        orientation: 'vertical'
+        size_hint_y: .2
+        size_hint_x: .88
+        md_bg_color: 1, 1, 1, .2
+        pos_hint: {'center_x': .5, 'center_y': .8}
+        BoxLayout:
+            orientation: 'vertical'
+            pos_hint: {'center_x': .5, 'center_y': .5}
+            height: self.minimum_height
+            MDLabel:
+                text: "WELCOME TO YOUR COMMAND DATABASE!!!"
+                font_name: "Speed"
+                bold: True
+                font_size: 20
+                theme_text_color: "Custom"
+                text_color: 0, 0, 0, 1,
+            MDLabel:
+                text: "Please create an Admin Password to begin."
+                bold: True
+                font_style: "Caption"
+    MDRaisedButton:
+        text: "CREATE"
+        font_name: "FreeAgent"
+        pos_hint: {'center_x': .5, 'center_y': .63}
+        elevation: 5
+        radius: [30, 7, 20, 7]
+        shadow_offset: [0, 10]
+        on_release: app.create()
+    MDRaisedButton:
+        text: "EXIT"
+        font_name: "FreeAgent"
+        font_size: 15
+        pos_hint: {"center_x": .8, "center_y": .1}
+        on_release: app.close_app()
+        radius: [30, 7, 20, 7]
+        shadow_offset: [0, 10]
+
+<SigninScreen>:
+    name: "signinscreen"
+    FitImage:
+        source: "fotos/mainscreen.jpg"
+    Image:
+        source: "fotos/nigeriaflag.png"
+        pos_hint: {"center_x": .5, "center_y": .8}
+        size_hint: (.5, .5)
+        opacity: .5
+    BoxLayout:
+        orientation: 'vertical'
+        size_hint_y: .3
+        size_hint_x: .8
+        pos_hint: {'center_x': .5, 'center_y': .5}
+        padding: "20dp", "24dp", "24dp", "32dp"
+        spacing: "15dp"
+        canvas:
+            Color:
+                rgba: 1, 1, 1, .2
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        MDLabel:
+            text: "Log In As:"
+            font_name: "Speed"
+            bold: True
+            font_size: 25
+            theme_text_color: "Custom"
+            text_color: 0, 0, 0, 1,
+        MDRaisedButton:
+            text: "ADMIN"
+            font_name: "FreeAgent"
+            font_size: 15
+            elevation: 5
+            radius: [30, 7, 20, 7]
+            shadow_offset: [0, 10]
+            on_release: app.admin_login()
+        MDRaisedButton:
+            text: "GUEST"
+            font_name: "FreeAgent"
+            elevation: 5
+            radius: [30, 7, 20, 7]
+            shadow_offset: [0, 10]
+            font_size: 15
+            on_release: app.gst_login()
+
+<SignupScreen>:
+    name: "signupscreen"
+    FitImage:
+        source: "fotos/mainscreen.jpg"
+    BoxLayout:
+        orientation: 'vertical'
+        size_hint_y: .1
+        size_hint_x: .9
+        pos_hint: {'center_x': .5, 'center_y': .9}
+        padding: "20dp", "24dp", "24dp", "32dp"
+        spacing: "15dp"
+        canvas:
+            Color:
+                rgba: 1, 1, 1, .2
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        MDLabel:
+            text: "REGISTER YOUR ADMIN DETAILS:"
+            font_name: "Speed"
+            bold: True
+            font_size: 20
+            theme_text_color: "Custom"
+            text_color: 0, 0, 0, 1,
+            italic: True
+    FieldCustom:
+        id: admpwd
+        hint_text: "Create Admin Password"
+        pos_hint: {'center_x': .5, 'center_y': .75}
+        helper_text: "Create Your Admin Password"
+        helper_text_mode: "persistent"
+        max_text_length: 20
+        size_hint_x: None
+        icon_right: "key-variant"
+        password: True
+    FieldCustom:
+        id: confmadmpwd
+        hint_text: "Re-Enter Admin Password"
+        pos_hint: {'center_x': .5, 'center_y': .6}
+        helper_text: "Confirm Admin Password"
+        helper_text_mode: "persistent"
+        max_text_length: 20
+        size_hint_x: None
+        icon_right: "key-variant"
+        password: True
+    FieldCustom:
+        id: emailadd
+        hint_text: "Email Address"
+        pos_hint: {'center_x': .5, 'center_y': .45}
+        helper_text: "Enter your Email Address"
+        helper_text_mode: "persistent"
+        size_hint_x: None
+        icon_right: "mail"
+    FieldCustom:
+        id: gstpwd
+        hint_text: "Creat Guest Sign-In Password"
+        pos_hint: {'center_x': .5, 'center_y': .3}
+        helper_text: "Create Your Guest Sign-In Password"
+        helper_text_mode: "persistent"
+        max_text_length: 20
+        size_hint_x: None
+        icon_right: "key-variant"
+        password: True
+    MDFloatLayout:
+        MDCheckbox:
+            #group: 'group'
+            id: cb
+            size_hint: None, None
+            width: "30dp"
+            height: "30dp"
+            pos_hint: {'center_x': .12, 'center_y': .2}
+            on_press:
+                admpwd.password = False if admpwd.password == True else True
+                confmadmpwd.password = False if confmadmpwd.password == True else True
+                gstpwd.password = False if gstpwd.password == True else True
+        MDLabel:
+            text: "[ref=Show Passwords]Show Passwords[/ref]"
+            markup: True
+            pos_hint: {'center_x': .7, 'center_y': .2}
+            on_ref_press:
+                cb.active = False if cb.active == True else True
+                admpwd.password = False if admpwd.password == True else True
+                confmadmpwd.password = False if confmadmpwd.password == True else True
+                gstpwd.password = False if gstpwd.password == True else True
+    MDRaisedButton:
+        text: "REGISTER"
+        font_name: "Speed"
+        elevation: 5
+        radius: [30, 7, 20, 7]
+        shadow_offset: [0, 10]
+        font_size: 15
+        pos_hint: {'center_x': .8, 'center_y': .1}
+        on_release: app.register()
+
+<ConfirmScreen>:
+    name: "confirmscreen"
+    FitImage:
+        source: "fotos/mainscreen.jpg"
+    BoxLayout:
+        orientation: 'vertical'
+        size_hint_y: .3
+        size_hint_x: .9
+        pos_hint: {'center_x': .5, 'center_y': .8}
+        padding: "20dp", "24dp", "24dp", "32dp"
+        spacing: "15dp"
+        canvas:
+            Color:
+                rgba: 1, 1, 1, .2
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        MDLabel:
+            text: "EMAIL CONFIRMATION:"
+            font_name: "Speed"
+            bold: True
+            font_size: 20
+            theme_text_color: "Custom"
+            text_color: 0, 0, 0, 1,
+            italic: True
+        MDLabel:
+            text: "Please enter the confirmation-code sent to your email"
+            bold: True
+            font_style: "Caption"
+        FieldCustom:
+            id: cnfmcd
+            hint_text: "Enter Confirmation-Code "
+            helper_text: "Confirmation-Code from Email"
+            helper_text_mode: "persistent"
+            max_text_length: 20
+            size_hint_x: None
+            icon_right: "code-braces-box"
+    MDRaisedButton:
+        text: "CONFIRM"
+        font_name: "Speed"
+        elevation: 5
+        radius: [30, 7, 20, 7]
+        shadow_offset: [0, 10]
+        font_size: 15
+        pos_hint: {'center_x': .8, 'center_y': .6}
+        on_release: app.confirm()
+    MDFloatingActionButton:
+        id: retry_cnfm
+        icon: 'arrow-left'
+        md_bg_color: app.theme_cls.primary_color
+        shadow_offset: [0, 10]
+        elevation: 5
+        user_font_size: '45sp'
+        pos_hint: {'center_x': .1, 'center_y': .1}
+        on_release:
+            root.manager.current = 'signupscreen'
+            root.manager.transition.direction = 'right'
+
+<SplashScreen2>:
+    name: "splashscreen2"
+    FitImage:
+        source: "fotos/HALO Military free fall - Version 3.jpg"
+    BoxLayout:
+        orientation: "vertical"
+        size_hint_y: None
+        height: "300dp"
+        pos_hint: {'center_x': .5, 'center_y': .5}
+        SplashLabel:
+            text: "WELCOME "
+            halign: "center"
+        SplashLabel:
+            text: "TO"
+            halign: "center"
+        SplashLabel:
+            text: "YOUR"
+            halign: "center"
+        SplashLabel:
+            text: "COMD"
+            halign: "center"
+        SplashLabel:
+            text: "DATABASE"
+            halign: "center"
+
+<AdmSigninScreen>:
+    name: "admsigninscreen"
+    FitImage:
+        source: "fotos/homescreen.jpg"
+    BoxLayout:
+        orientation: 'vertical'
+        size_hint_y: .3
+        size_hint_x: .9
+        pos_hint: {'center_x': .5, 'center_y': .8}
+        padding: "20dp", "24dp", "24dp", "32dp"
+        spacing: "15dp"
+        canvas:
+            Color:
+                rgba: 1, 1, 1, .2
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        MDLabel:
+            text: "SIGN IN AS ADMIN:"
+            font_name: "Speed"
+            bold: True
+            font_size: 20
+            theme_text_color: "Custom"
+            text_color: 0, 0, 0, 1,
+            italic: True
+        MDLabel:
+            text: "Enter your Admin Password"
+            bold: True
+            font_style: "Caption"
+        FieldCustom:
+            id: signinadm
+            hint_text: "Admin Password"
+            max_text_length: 20
+            size_hint_x: None
+            icon_right: "account-key"
+            password: True
+    MDRaisedButton:
+        text: "ENTER"
+        id: signin_adm
+        font_name: "Speed"
+        elevation: 5
+        radius: [30, 7, 20, 7]
+        shadow_offset: [0, 10]
+        font_size: 15
+        pos_hint: {'center_x': .8, 'center_y': .6}
+        on_release: app.hub_login_adm()
+    MDFloatingActionButton:
+        id: leave_admsignin
+        icon: 'arrow-left'
+        md_bg_color: app.theme_cls.primary_color
+        shadow_offset: [0, 10]
+        elevation: 5
+        user_font_size: '45sp'
+        pos_hint: {'center_x': .1, 'center_y': .1}
+        on_release:
+            root.manager.current = 'signinscreen'
+            root.manager.transition.direction = 'right'
+    MDRaisedButton:
+        text: "EXIT"
+        font_name: "Speed"
+        id: exitapp
+        md_bg_color: app.theme_cls.primary_color
+        shadow_offset: [0, 10]
+        elevation: 5
+        user_font_size: '45sp'
+        pos_hint: {'center_x': .85, 'center_y': .1}
+        on_release: app.close_app()
+    MDFloatLayout:
+        MDCheckbox:
+            #group: 'group'
+            id: cb
+            size_hint: None, None
+            width: "30dp"
+            height: "30dp"
+            pos_hint: {'center_x': .12, 'center_y': .6}
+            on_press:
+                signinadm.password = False if signinadm.password == True else True
+        MDLabel:
+            text: "[ref=Show Passwords]Show Passwords[/ref]"
+            markup: True
+            pos_hint: {'center_x': .7, 'center_y': .6}
+            on_ref_press:
+                cb.active = False if cb.active == True else True
+                signinadm.password = False if signinadm.password == True else True
+        MDLabel:
+            text: "[ref=Forgot Password?]Forgot Password?[/ref]"
+            markup: True
+            pos_hint: {'center_x': .54, 'center_y': .3}
+            theme_text_color: "Error"
+            on_ref_press:
+    MDFillRoundFlatIconButton:
+        text: "Reset Password"
+        icon: "key-variant"
+        font_name: "Speed"
+        font_size: 13
+        id: reset_adm_pwd
+        md_bg_color: app.theme_cls.primary_color
+        shadow_offset: [0, 10]
+        elevation: 5
+        user_font_size: '45sp'
+        pos_hint: {'center_x': .3, 'center_y': .25}
+        on_release:
+
+<GstSigninScreen>:
+    name: "gstsigninscreen"
+    FitImage:
+        source: "fotos/homescreen.jpg"
+    BoxLayout:
+        orientation: 'vertical'
+        size_hint_y: .3
+        size_hint_x: .9
+        pos_hint: {'center_x': .5, 'center_y': .8}
+        padding: "20dp", "24dp", "24dp", "32dp"
+        spacing: "15dp"
+        canvas:
+            Color:
+                rgba: 1, 1, 1, .2
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        MDLabel:
+            text: "SIGN IN AS GUEST:"
+            font_name: "Speed"
+            bold: True
+            font_size: 20
+            theme_text_color: "Custom"
+            text_color: 0, 0, 0, 1,
+            italic: True
+        MDLabel:
+            text: "Enter Guest Sign-In Password\n(Editing permissions are withheld)"
+            theme_text_color: "Custom"
+            md_bg_color: 1, 1, 1, .15
+            text_color: "red"
+            bold: True
+            font_style: "Caption"
+        FieldCustom:
+            id: signingst
+            hint_text: "Guest Sign-In Password"
+            max_text_length: 20
+            size_hint_x: None
+            icon_right: "account-key"
+            password: True
+    MDRaisedButton:
+        text: "ENTER"
+        id: signin_gst
+        font_name: "Speed"
+        elevation: 5
+        radius: [30, 7, 20, 7]
+        shadow_offset: [0, 10]
+        font_size: 15
+        pos_hint: {'center_x': .8, 'center_y': .6}
+        on_release: app.hub_login_gst()
+    MDRaisedButton:
+        text: "EXIT"
+        font_name: "Speed"
+        id: exitapp
+        md_bg_color: app.theme_cls.primary_color
+        shadow_offset: [0, 10]
+        elevation: 5
+        user_font_size: '45sp'
+        pos_hint: {'center_x': .85, 'center_y': .1}
+        on_release: app.close_app()
+    MDFloatLayout:
+        MDCheckbox:
+            #group: 'group'
+            id: cb
+            size_hint: None, None
+            width: "30dp"
+            height: "30dp"
+            pos_hint: {'center_x': .12, 'center_y': .6}
+            on_press:
+                signingst.password = False if signingst.password == True else True
+        MDLabel:
+            text: "[ref=Show Password]Show Password[/ref]"
+            markup: True
+            pos_hint: {'center_x': .7, 'center_y': .6}
+            on_ref_press:
+                cb.active = False if cb.active == True else True
+                signingst.password = False if signingst.password == True else True
+    MDFloatingActionButton:
+        id: leave_gstsignin
+        icon: 'arrow-left'
+        md_bg_color: app.theme_cls.primary_color
+        shadow_offset: [0, 10]
+        elevation: 5
+        user_font_size: '45sp'
+        pos_hint: {'center_x': .1, 'center_y': .1}
+        on_release:
+            root.manager.current = 'signinscreen'
+            root.manager.transition.direction = 'right'
+
+<HubScreen>:
+    name: "hubscreen"
+    FitImage:
+        source: "fotos/long-forest-path.jpg"
+    Image:
+        source: "fotos/nigeriaflag.png"
+        pos_hint: {"center_x": .5, "center_y": .8}
+        size_hint: (.5, .4)
+        opacity: .5
+    MDLabel:
+        text: "COMD DB\nHUB"
+        halign: "center"
+        font_name: "Speed"
+        pos_hint: {"center_y": .8}
+        bold: True
+        font_size: 50
+        theme_text_color: "Custom"
+        text_color: 0, 0, 0, 1,
+    BoxLayout:
+        orientation: 'vertical'
+        size_hint_y: .5
+        size_hint_x: .9
+        pos_hint: {'center_x': .5, 'center_y': .4}
+        padding: "20dp", "24dp", "24dp", "32dp"
+        spacing: "25dp"
+        canvas:
+            Color:
+                rgba: 1, 1, 1, .2
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        MDLabel:
+            text: "What will you like to do?"
+            font_name: "Speed"
+            halign: "center"
+            bold: True
+            font_size: 25
+            theme_text_color: "Custom"
+            text_color: 0, 0, 0, 1,
+        MDLabel:
+            text: "Tap as appropriate"
+            size_hint_y: None
+            height: self.texture_size[1]
+            font_style: "Caption"
+            theme_text_color: "Custom"
+            text_color: 1, 1, 1, 1
+        MDRaisedButton:
+            text: "SEARCH DATABASE"
+            md_bg_color: "#999966"
+            font_name: "Speed"
+            pos_hint: {"center_x": .5}
+            font_size: 15
+            elevation: 5
+            radius: [30, 7, 20, 7]
+            shadow_offset: [0, 10]
+            on_release:
+        MDRaisedButton:
+            text: "UPDATE/EDIT DATABASE"
+            md_bg_color: "#999966"
+            font_name: "Speed"
+            pos_hint: {"center_x": .5}
+            elevation: 5
+            radius: [30, 7, 20, 7]
+            shadow_offset: [0, 10]
+            font_size: 15
+            on_release:
+        MDRaisedButton:
+            text: "INPUT NEW PERSONNEL"
+            md_bg_color: "#999966"
+            font_name: "Speed"
+            pos_hint: {"center_x": .5}
+            elevation: 5
+            radius: [30, 7, 20, 7]
+            shadow_offset: [0, 10]
+            font_size: 15
+            on_release:
+    MDRaisedButton:
+        text: "EXIT"
+        font_name: "FreeAgent"
+        id: exitapp
+        md_bg_color: app.theme_cls.primary_color
+        shadow_offset: [0, 10]
+        elevation: 5
+        user_font_size: '45sp'
+        pos_hint: {'center_x': .85, 'center_y': .05}
+        on_release: app.close_app()
