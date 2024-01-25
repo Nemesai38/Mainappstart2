@@ -24,21 +24,15 @@ class HomeScreen(Screen):
 
 
 class SigninScreen(Screen):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        pass
+    pass
 
 
 class SignupScreen(Screen):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        pass
+    pass
 
 
 class ConfirmScreen(Screen):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        pass
+    pass
 
 
 class SplashScreen2(Screen):
@@ -46,25 +40,18 @@ class SplashScreen2(Screen):
 
 
 class AdmSigninScreen(Screen):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        pass
+    pass
 
 
 class GstSigninScreen(Screen):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        pass
+    pass
 
 
 class HubScreen(Screen):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        pass
+    pass
 
 
 sm = ScreenManager()
-screens = [Screen(name='Title {}'.format(i)) for i in range(8)]
 sm.add_widget(SplashScreen(name='splashscreen'))
 sm.add_widget(HomeScreen(name='homescreen'))
 sm.add_widget(SigninScreen(name='signinscreen'))
@@ -223,6 +210,7 @@ class MainApp(MDApp):
 
     def gst_login(self):
         self.strng.get_screen("gstsigninscreen").manager.current = "gstsigninscreen"
+        self.strng.get_screen("gstsigninscreen").manager.transition.direction = "left"
 
     def hub_login_gst(self):
         with open("userinfo.json", 'r') as f:
