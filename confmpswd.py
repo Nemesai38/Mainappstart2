@@ -11,7 +11,7 @@ class Confirm:
     def confirm_pwd(self):
         for lk in range(1):
             self.password = ""
-            for ts in range(0, 7):
+            for ts in range(0, 8):
                 password_char = random.choice(chars)
                 self.password = self.password + password_char
             print(self.password)
