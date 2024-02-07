@@ -169,7 +169,7 @@ class MainApp(MDApp):
 
     def send_mail(self):
         email_sender = 'pappysouls@gmail.com'
-        email_password = 'rjtislvcyoyxktvb'
+        email_password = 'xxxxxxxxxxxxxxxxx'
         email_receiver = self.root.get_screen('signupscreen').ids.emailadd.text
 
         subject = 'Comd DB Confirmation Password'
