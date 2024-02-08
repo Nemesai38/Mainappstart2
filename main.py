@@ -234,6 +234,10 @@ class MainApp(MDApp):
         self.dialog.dismiss()
 
     @staticmethod
+    def enter_personnel():
+        call(["python", "personnel_info.py"])
+
+    @staticmethod
     def close_app():
         MainApp().stop()
 
