@@ -15,6 +15,7 @@ import ssl
 from email.message import EmailMessage
 
 
+# Defining Screens
 class SplashScreen(Screen):
     pass
 
@@ -62,9 +63,11 @@ sm.add_widget(AdmSigninScreen(name='admsigninscreen'))
 sm.add_widget(GstSigninScreen(name='gstsigninscreen'))
 sm.add_widget(GstSigninScreen(name='hubsscreen'))
 
+# Variable for confirmation password creation
 chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!§$%&/()="
 
 
+# Main Application build
 class MainApp(MDApp):
     dialog = None
 
@@ -81,9 +84,11 @@ class MainApp(MDApp):
         self.strng = Builder.load_file('main.kv')
         return self.strng
 
+    # Splash screen show
     def on_start(self):
         Clock.schedule_once(self.login, 3)
 
+    # determine first screen on startup
     def login(self, *args):
         with open("userinfo.json", 'r') as f:
             data = json.load(f)
@@ -92,9 +97,11 @@ class MainApp(MDApp):
             else:
                 self.strng.get_screen("signinscreen").manager.current = "signinscreen"
 
+    # create first admin details
     def create(self):
         self.strng.get_screen("signupscreen").manager.current = "signupscreen"
 
+    # register signing in information
     def register(self):
         if self.root.get_screen('signupscreen').ids.admpwd.text != \
                 self.root.get_screen('signupscreen').ids.confmadmpwd.text:
@@ -131,6 +138,7 @@ class MainApp(MDApp):
                     self.send_mail()
                     self.strng.get_screen("confirmscreen").manager.current = "confirmscreen"
 
+    # emailed confirmation password input for signing in information registration
     def confirm(self):
         if self.root.get_screen('confirmscreen').ids.cnfmcd.text == "":
             self.dialog = MDDialog(title='', text='Input Confirmation Code',
@@ -150,14 +158,17 @@ class MainApp(MDApp):
                                                               on_press=self.after_confirm)])
             self.dialog.open()
 
+    # welcome splash-screen zeigen
     def after_confirm(self, *args):
         self.close_dialog()
         self.strng.get_screen("splashscreen2").manager.current = "splashscreen2"
         Clock.schedule_once(self.sign_in, 5)
 
+    # takes to sign-in screen
     def sign_in(self, *args):
         self.root.get_screen('signinscreen').manager.current = 'signinscreen'
 
+    # random sign-in information registration password creation
     def confirm_pwd(self):
         for lk in range(1):
             self.password = ""
@@ -167,6 +178,7 @@ class MainApp(MDApp):
             print(self.password)
             return self.password
 
+    # function to send random password created
     def send_mail(self):
         email_sender = 'pappysouls@gmail.com'
         email_password = 'xxxxxxxxxxxxxxxxx'
@@ -187,9 +199,11 @@ class MainApp(MDApp):
             smtp.login(email_sender, email_password)
             smtp.sendmail(email_sender, email_receiver, em.as_string())
 
+    # takes to admin user login screen
     def admin_login(self):
         self.root.get_screen('admsigninscreen').manager.current = 'admsigninscreen'
 
+    # takes to central database hub after successful admin sign-in
     def hub_login_adm(self):
         with open("userinfo.json", 'r') as f:
             data = json.load(f)
@@ -208,10 +222,12 @@ class MainApp(MDApp):
             elif self.root.get_screen('admsigninscreen').ids.signinadm.text == data["userinfo"][0]["password"]:
                 self.strng.get_screen("hubscreen").manager.current = "hubscreen"
 
+    # takes to guest signin-in screen
     def gst_login(self):
         self.strng.get_screen("gstsigninscreen").manager.current = "gstsigninscreen"
         self.strng.get_screen("gstsigninscreen").manager.transition.direction = "left"
 
+    # takes to guest central database control hub
     def hub_login_gst(self):
         with open("userinfo.json", 'r') as f:
             data = json.load(f)
@@ -230,13 +246,16 @@ class MainApp(MDApp):
             elif self.root.get_screen('gstsigninscreen').ids.signingst.text == data["userinfo"][1]["password"]:
                 self.strng.get_screen("hubscreen").manager.current = "hubscreen"
 
+    # function to close any dialog box
     def close_dialog(self, *args):
         self.dialog.dismiss()
 
+    # function to open personnel registration information
     @staticmethod
     def enter_personnel():
         call(["python", "personnel_info.py"])
 
+    # function to close whole application
     @staticmethod
     def close_app():
         MainApp().stop()
