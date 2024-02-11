@@ -255,6 +255,11 @@ class MainApp(MDApp):
     def enter_personnel():
         call(["python", "personnel_info.py"])
 
+    # function to view personnel information
+    @staticmethod
+    def view_per_info():
+        call(["python", "view_per_info.py"])
+
     # function to close whole application
     @staticmethod
     def close_app():

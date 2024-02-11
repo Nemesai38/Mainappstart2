@@ -30,6 +30,11 @@ def clear_all_fields():
     return
 
 
+def clear_image():
+    global img
+    img = ""
+
+
 # Function to collect personnel information into database
 # and create one if one doesn't exist
 def reg_per():
@@ -202,7 +207,9 @@ per_img_frame_canvas_scrollbar_btn.place(relx=0, rely=1, relwidth=1, anchor='sw'
 
 # Buttons
 upload_image_btn = tkinter.Button(per_info_frame, text="Upload\nImage", command=upload_img)
-upload_image_btn.grid(row=5, column=2, sticky='se')
+upload_image_btn.grid(row=5, column=2, sticky='e')
+clear_image_btn = tkinter.Button(per_info_frame, text="Clear\nImage", command=clear_image)
+clear_image_btn.grid(row=5, column=2, sticky='se')
 clear_button = tkinter.Button(frame, text="CLEAR ALL", command=clear_all_fields)
 register_personnel = tkinter.Button(frame, text="REGISTER PERSONNEL", command=reg_per)
 return_button = tkinter.Button(frame, text="Go Back", command=go_back)
