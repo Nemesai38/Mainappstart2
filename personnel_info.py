@@ -262,6 +262,56 @@ def update_record():
         return
 
 
+# function to input search result in form
+def input_function(r):
+    global img_label
+    global blob_image
+    clear_all_fields()
+    upload_image_btn.config(state='disabled')
+    clear_image_btn.config(state='disabled')
+    clear_button.config(state='disabled')
+    register_personnel_btn.config(state='disabled')
+    Serial_Number.set(r[i][0])
+    Army_Number.set(r[i][1])
+    Rank.set(r[i][2])
+    First_Name.set(r[i][3])
+    Last_Name.set(r[i][4])
+    Gender_radio.set(r[i][5])
+    Unit.set(r[i][6])
+    Corps.set(r[i][7])
+    Appointment.set(r[i][8])
+    Deployment.set(r[i][9])
+    State.set(r[i][10])
+    Trade.set(r[i][11])
+    address_entry.insert(INSERT, r[i][12])
+    Marital_Status_radio.set(r[i][13])
+    blob_image = r[i][14]
+    blob = io.BytesIO(r[i][14])
+    image = Image.open(blob)
+    resized_photo = image.resize((300, 310))
+    per_image = ImageTk.PhotoImage(resized_photo)
+    img_label.config(image=per_image)
+    img_label = per_image
+
+
+# Function to search using entered name string
+def search_database_name():
+    name = search_string_entry.get()
+    if name == "":
+        tkinter.messagebox.showerror("Error", "Please enter name or part of name in FIND field")
+    else:
+        conn = sqlite3.connect('data.db')
+        cursor = conn.cursor()
+        c = cursor.execute("SELECT * FROM Personnel_Info WHERE firstname LIKE ? or lastname LIKE ?",
+                           (f'%{name}%', f'%{name}%',))
+        r = c.fetchall()
+        if r:
+            input_function(r)
+        else:
+            tkinter.messagebox.showinfo("Error", "Name not in DB")
+        conn.close()
+
+
 # Frame to collect all required information
 per_info_frame = tkinter.LabelFrame(frame, text="Personnel Information")
 per_info_frame.grid(row=0, column=0)
@@ -359,7 +409,7 @@ serial_number_entry = tkinter.Entry(per_info_frame, textvariable=Serial_Number, 
 serial_number_entry.grid(row=5, column=6, sticky='n')
 
 
-# Buttons
+# Major Buttons
 upload_image_btn = tkinter.Button(per_info_frame, text="Upload\nImage", command=upload_img, bg='lightblue')
 upload_image_btn.grid(row=5, column=3, sticky='e')
 clear_image_btn = tkinter.Button(per_info_frame, text="Clear\nImage", command=clear_image, bg='lightpink')
@@ -384,12 +434,13 @@ go_forward_btn = tkinter.Button(per_info_frame, image=icon2, command=next_person
 go_forward_btn.grid(row=9, column=2, sticky='e')
 
 # Search Widgets
-find_label = tkinter.Label(per_info_frame, text='Find:', font='bold 13')
+find_label = tkinter.Label(per_info_frame, text='FIND:', font='bold 13')
 find_label.grid(row=7, column=3, sticky='w')
 search_string_entry = tkinter.Entry(per_info_frame, font='13')
 search_string_entry.grid(row=8, column=3, sticky='w')
 search_icon = PhotoImage(file="icons/search.png")
-name_search_btn = tkinter.Button(per_info_frame, text="Search NAME", image=search_icon, bg="#a3c2c2", compound=RIGHT)
+name_search_btn = tkinter.Button(per_info_frame, text="Search NAME", image=search_icon, bg="#a3c2c2", compound=RIGHT,
+                                 command=search_database_name)
 name_search_btn.grid(row=6, column=4, sticky='news')
 army_number_search_btn = tkinter.Button(per_info_frame, text="Search ARMY NUMBER", image=search_icon, bg="#a3c2c2", compound=RIGHT)
 army_number_search_btn.grid(row=7, column=4, sticky='news')
@@ -401,8 +452,8 @@ trade_search_btn = tkinter.Button(per_info_frame, text="Search TRADE", image=sea
 trade_search_btn.grid(row=6, column=5, columnspan=2, sticky='news')
 corps_search_btn = tkinter.Button(per_info_frame, text="Search CORPS", image=search_icon, bg="#a3c2c2", compound=RIGHT)
 corps_search_btn.grid(row=7, column=5, columnspan=2, sticky='news')
-appt_search_btn = tkinter.Button(per_info_frame, text="Search APPOINTMENT", image=search_icon, bg="#a3c2c2", compound=RIGHT)
-appt_search_btn.grid(row=8, column=5, columnspan=2, sticky='news')
+appointment_search_btn = tkinter.Button(per_info_frame, text="Search APPOINTMENT", image=search_icon, bg="#a3c2c2", compound=RIGHT)
+appointment_search_btn.grid(row=8, column=5, columnspan=2, sticky='news')
 deployment_search_btn = tkinter.Button(per_info_frame, text="Search GENDER", image=search_icon, bg="#a3c2c2", compound=RIGHT)
 deployment_search_btn.grid(row=9, column=5, columnspan=2, sticky='news')
 
