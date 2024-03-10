@@ -84,10 +84,10 @@ def reg_per():
 
         # Create Table
         conn = sqlite3.connect('data.db')
-        table_create_query = '''CREATE TABLE IF NOT EXISTS Personnel_Info (serial INTEGER PRIMARY KEY AUTOINCREMENT, armynumber TEXT, 
-        rank TEXT, firstname TEXT, lastname TEXT, sex TEXT, unit TEXT, corps TEXT, appointment TEXT, deployment TEXT, state TEXT, 
-        trade TEXT, address TEXT, maritalstatus TEXT, image BLOB)
-        '''
+        table_create_query = '''CREATE TABLE IF NOT EXISTS Personnel_Info (serial INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
+        armynumber TEXT, rank TEXT, firstname TEXT, lastname TEXT, sex TEXT, unit TEXT, corps TEXT, appointment TEXT, 
+        deployment TEXT, state TEXT, trade TEXT, address TEXT, maritalstatus TEXT, image BLOB)'''
+        
         conn.execute(table_create_query)
 
         # Insert Data
@@ -140,11 +140,17 @@ def peruse_database():
     global i
     global blob_image
     clear_all_fields()
-    upload_image_btn.config(state='disabled')
-    clear_image_btn.config(state='disabled')
+    go_back_btn.config(state='normal')
+    go_forward_btn.config(state='normal')
+    upload_image_btn.config(state='normal')
+    clear_image_btn.config(state='normal')
     clear_button.config(state='disabled')
     register_personnel_btn.config(state='disabled')
-
+    try:
+        search_next_btn.config(state='disabled')
+        search_prev_btn.config(state='disabled')
+    except NameError:
+        pass
     conn = sqlite3.connect('data.db')
     cursor = conn.cursor()
     c = cursor.execute("SELECT * FROM Personnel_Info")
@@ -177,22 +183,26 @@ def peruse_database():
     return
 
 
-def next_personnel():
-    global i
+def get_max_rows():
     conn = sqlite3.connect('data.db')
     cursor = conn.cursor()
     c = cursor.execute("SELECT COUNT(*) FROM Personnel_Info")
     result = c.fetchone()
-    total = result[0]
+    total_row = result[0]
+    cursor.close()
+    conn.close()
+    return total_row
+
+
+def next_personnel():
+    global i
     if Army_Number.get() == "":
         return
-    if i == total - 1:
+    if i == get_max_rows() - 1:
         tkinter.messagebox.showinfo("End", "Last Personnel in DB")
     else:
         i += 1
         peruse_database()
-    cursor.close()
-    conn.close()
     return
 
 
@@ -262,8 +272,39 @@ def update_record():
         return
 
 
+# function to delete record from database
+def delete_record():
+    if Serial_Number.get() == 0:
+        tkinter.messagebox.showerror("Error", "First Select a Personnel")
+    else:
+        decision = tkinter.messagebox.askyesno("Confirm Removal", "Personnel information will not be recoverable\nClick "
+                                               "Yes to confirm deletion")
+        if decision:
+            del_serial = Serial_Number.get()
+            connection = sqlite3.connect('data.db')
+            cursor = connection.cursor()
+            cursor.execute("DELETE FROM Personnel_Info WHERE serial = ?", f'{del_serial}')
+            connection.commit()
+            cursor.close()
+            connection.close()
+            tkinter.messagebox.showinfo("Done", "")
+        else:
+            pass
+        return
+
+
+# function to reset variable i to avoid out of range Error when
+# reestablishing connection or change of database query
+def reset_i():
+    global i
+    if i != 0:
+        i = 0
+    return
+
+
 # function to input search result in form
 def input_function(r):
+    i = 0
     global img_label
     global blob_image
     clear_all_fields()
@@ -296,20 +337,161 @@ def input_function(r):
 
 # Function to search using entered name string
 def search_database_name():
-    name = search_string_entry.get()
-    if name == "":
+    search_str = search_string_entry.get()
+    if search_str == "":
         tkinter.messagebox.showerror("Error", "Please enter name or part of name in FIND field")
     else:
         conn = sqlite3.connect('data.db')
         cursor = conn.cursor()
         c = cursor.execute("SELECT * FROM Personnel_Info WHERE firstname LIKE ? or lastname LIKE ?",
-                           (f'%{name}%', f'%{name}%',))
+                           (f'%{search_str}%', f'%{search_str}%',))
         r = c.fetchall()
         if r:
             input_function(r)
         else:
-            tkinter.messagebox.showinfo("Error", "Name not in DB")
+            tkinter.messagebox.showinfo("Error", "Name not found in DB")
         conn.close()
+
+
+# match case function to establish various search queries
+def search_master(button):
+    global i
+    global img_label
+    global blob_image
+    global search_result
+    global search_next_btn
+    global search_prev_btn
+    search_string = search_string_entry.get()
+    if search_string == "":
+        tkinter.messagebox.showerror("Error", "Please enter what to search in FIND field")
+    else:
+        connection = sqlite3.connect("data.db")
+        match button:
+            case 'search_army_no_btn':
+                cursor = connection.cursor()
+                army_no_search_result = cursor.execute("SELECT * FROM Personnel_Info WHERE armynumber LIKE ?", (f'%{search_string}%',))
+                search_result = army_no_search_result.fetchall()
+                search_next_btn = tkinter.Button(per_info_frame, text='Next', bg="#93c47d", command=lambda: next_per(
+                    'search_army_no_btn'))
+                search_next_btn.grid(row=6, column=3, sticky='e')
+                search_prev_btn = tkinter.Button(per_info_frame, text='Back ', bg="#93c47d", command=lambda: prev_per(
+                    'search_army_no_btn'))
+                search_prev_btn.grid(row=6, column=3, sticky='w')
+            case 'search_rank_btn':
+                cursor = connection.cursor()
+                rank_search_result = cursor.execute(f"SELECT * FROM Personnel_Info WHERE rank LIKE ?", (search_string,))
+                search_result = rank_search_result.fetchall()
+                search_next_btn = tkinter.Button(per_info_frame, text='Next', bg="#93c47d", command=lambda: next_per(
+                    'search_rank_btn'))
+                search_next_btn.grid(row=6, column=3, sticky='e')
+                search_prev_btn = tkinter.Button(per_info_frame, text='Back ', bg="#93c47d", command=lambda: prev_per(
+                    'search_rank_btn'))
+                search_prev_btn.grid(row=6, column=3, sticky='w')
+            case 'search_deployment_btn':
+                cursor = connection.cursor()
+                deployment_search_result = cursor.execute(f"SELECT * FROM Personnel_Info WHERE deployment LIKE ?", (search_string,))
+                search_result = deployment_search_result.fetchall()
+                search_next_btn = tkinter.Button(per_info_frame, text='Next', bg="#93c47d", command=lambda: next_per(
+                    'search_deployment_btn'))
+                search_next_btn.grid(row=6, column=3, sticky='e')
+                search_prev_btn = tkinter.Button(per_info_frame, text='Back ', bg="#93c47d", command=lambda: prev_per(
+                    'search_deployment_btn'))
+                search_prev_btn.grid(row=6, column=3, sticky='w')
+            case 'search_trade_btn':
+                cursor = connection.cursor()
+                trade_search_result = cursor.execute(f"SELECT * FROM Personnel_Info WHERE trade LIKE ?", (f'%{search_string}%',))
+                search_result = trade_search_result.fetchall()
+                search_next_btn = tkinter.Button(per_info_frame, text='Next', bg="#93c47d", command=lambda: next_per(
+                    'search_trade_btn'))
+                search_next_btn.grid(row=6, column=3, sticky='e')
+                search_prev_btn = tkinter.Button(per_info_frame, text='Back ', bg="#93c47d", command=lambda: prev_per(
+                    'search_trade_btn'))
+                search_prev_btn.grid(row=6, column=3, sticky='w')
+            case 'search_corps_btn':
+                cursor = connection.cursor()
+                corps_search_result = cursor.execute(f"SELECT * FROM Personnel_Info WHERE corps LIKE ?", (f'%{search_string}%',))
+                search_result = corps_search_result.fetchall()
+                search_next_btn = tkinter.Button(per_info_frame, text='Next', bg="#93c47d", command=lambda: next_per(
+                    'search_corps_btn'))
+                search_next_btn.grid(row=6, column=3, sticky='e')
+                search_prev_btn = tkinter.Button(per_info_frame, text='Back ', bg="#93c47d", command=lambda: prev_per(
+                    'search_corps_btn'))
+                search_prev_btn.grid(row=6, column=3, sticky='w')
+            case 'search_appointment_btn':
+                cursor = connection.cursor()
+                appointment_search_result = cursor.execute("SELECT * FROM Personnel_Info WHERE appointment LIKE ?",
+                                                           (f'%{search_string}%',))
+                search_result = appointment_search_result.fetchall()
+                search_next_btn = tkinter.Button(per_info_frame, text='Next', bg="#93c47d", command=lambda: next_per(
+                    'search_appointment_btn'))
+                search_next_btn.grid(row=6, column=3, sticky='e')
+                search_prev_btn = tkinter.Button(per_info_frame, text='Back ', bg="#93c47d", command=lambda: prev_per(
+                    'search_appointment_btn'))
+                search_prev_btn.grid(row=6, column=3, sticky='w')
+            case 'search_gender_btn':
+                cursor = connection.cursor()
+                gender_search_result = cursor.execute("SELECT * FROM Personnel_Info WHERE LOWER(sex) = ?", (search_string,))
+                search_result = gender_search_result.fetchall()
+                search_next_btn = tkinter.Button(per_info_frame, text='Next', bg="#93c47d", command=lambda: next_per(
+                    'search_gender_btn'))
+                search_next_btn.grid(row=6, column=3, sticky='e')
+                search_prev_btn = tkinter.Button(per_info_frame, text='Back ', bg="#93c47d", command=lambda: prev_per(
+                    'search_gender_btn'))
+                search_prev_btn.grid(row=6, column=3, sticky='w')
+
+        if search_result:
+            clear_all_fields()
+            clear_button.config(state='disabled')
+            register_personnel_btn.config(state='disabled')
+            go_forward_btn.config(state='disabled')
+            go_back_btn.config(state='disabled')
+            Serial_Number.set(search_result[i][0])
+            Army_Number.set(search_result[i][1])
+            Rank.set(search_result[i][2])
+            First_Name.set(search_result[i][3])
+            Last_Name.set(search_result[i][4])
+            Gender_radio.set(search_result[i][5])
+            Unit.set(search_result[i][6])
+            Corps.set(search_result[i][7])
+            Appointment.set(search_result[i][8])
+            Deployment.set(search_result[i][9])
+            State.set(search_result[i][10])
+            Trade.set(search_result[i][11])
+            address_entry.insert(INSERT, search_result[i][12])
+            Marital_Status_radio.set(search_result[i][13])
+            blob_image = search_result[i][14]
+            blob = io.BytesIO(search_result[i][14])
+            image = Image.open(blob)
+            resized_photo = image.resize((300, 310))
+            per_image = ImageTk.PhotoImage(resized_photo)
+            img_label.config(image=per_image)
+            img_label = per_image
+        else:
+            tkinter.messagebox.showinfo("Not Found", "Not found in DB")
+        connection.close()
+        return
+
+
+# function to scroll to next record on returned search query
+def next_per(button):
+    global i
+    if i == len(search_result) - 1:
+        messagebox.showinfo("End", "Final Search Personnel")
+    else:
+        i += 1
+        search_master(button)
+    return
+
+
+# function to scroll to previous record on returned search query
+def prev_per(button):
+    global i
+    if i == 0:
+        messagebox.showinfo("Start", "First Personnel")
+    else:
+        i -= 1
+        search_master(button)
+    return
 
 
 # Frame to collect all required information
@@ -414,7 +596,7 @@ upload_image_btn = tkinter.Button(per_info_frame, text="Upload\nImage", command=
 upload_image_btn.grid(row=5, column=3, sticky='e')
 clear_image_btn = tkinter.Button(per_info_frame, text="Clear\nImage", command=clear_image, bg='lightpink')
 clear_image_btn.grid(row=5, column=3, sticky='se')
-clear_button = tkinter.Button(per_info_frame, text="CLEAR ALL", command=clear_all_fields, bg='#eb8080')
+clear_button = tkinter.Button(per_info_frame, text="CLEAR ALL FIELDS", command=clear_all_fields, bg='#eb8080')
 clear_button.grid(row=6, column=0, sticky='news', padx=20, pady=2)
 register_personnel_btn = tkinter.Button(per_info_frame, text="REGISTER PERSONNEL", command=reg_per, bg='lightgreen')
 register_personnel_btn.grid(row=7, column=0, sticky='news', padx=20, pady=2)
@@ -422,10 +604,12 @@ update_button = tkinter.Button(per_info_frame, text="UPDATE INFORMATION", bg='#a
 update_button.grid(row=8, column=0, sticky='news', padx=20, pady=2)
 return_button = tkinter.Button(per_info_frame, text="Go Back", command=go_back, bg="#ce7e00")
 return_button.grid(row=9, column=0, sticky='news', padx=20, pady=2)
+delete_personnel_btn = tkinter.Button(per_info_frame, text="REMOVE PERSONNEL", bg="#cc0000", command=delete_record)
+delete_personnel_btn.grid(row=6, column=1, sticky='news')
 
 # Peruse database buttons
-peruse_db_frame = tkinter.Button(per_info_frame, text="PERUSE DATABASE", bg="#45818e", command=peruse_database)
-peruse_db_frame.grid(row=9, column=1)
+peruse_db_btn = tkinter.Button(per_info_frame, text="PERUSE DATABASE", bg="#45818e", command=lambda: [peruse_database(), reset_i()])
+peruse_db_btn.grid(row=9, column=1)
 icon1 = PhotoImage(file="icons/arrow-left-bold-circle-outline.png")
 icon2 = PhotoImage(file="icons/arrow-right-bold-circle-outline.png")
 go_back_btn = tkinter.Button(per_info_frame, image=icon1, command=previous_personnel)
@@ -442,20 +626,27 @@ search_icon = PhotoImage(file="icons/search.png")
 name_search_btn = tkinter.Button(per_info_frame, text="Search NAME", image=search_icon, bg="#a3c2c2", compound=RIGHT,
                                  command=search_database_name)
 name_search_btn.grid(row=6, column=4, sticky='news')
-army_number_search_btn = tkinter.Button(per_info_frame, text="Search ARMY NUMBER", image=search_icon, bg="#a3c2c2", compound=RIGHT)
+army_number_search_btn = tkinter.Button(per_info_frame, text="Search ARMY NUMBER", image=search_icon, bg="#a3c2c2", compound=RIGHT,
+                                        command=lambda: [reset_i(), search_master('search_army_no_btn')])
 army_number_search_btn.grid(row=7, column=4, sticky='news')
-rank_search_btn = tkinter.Button(per_info_frame, text="Search RANK", image=search_icon, bg="#a3c2c2", compound=RIGHT)
+rank_search_btn = tkinter.Button(per_info_frame, text="Search RANK", image=search_icon, bg="#a3c2c2", compound=RIGHT,
+                                 command=lambda: [reset_i(), search_master('search_rank_btn')])
 rank_search_btn.grid(row=8, column=4, sticky='news')
-unit_search_btn = tkinter.Button(per_info_frame, text="Search UNIT", image=search_icon, bg="#a3c2c2", compound=RIGHT)
-unit_search_btn.grid(row=9, column=4, sticky='news')
-trade_search_btn = tkinter.Button(per_info_frame, text="Search TRADE", image=search_icon, bg="#a3c2c2", compound=RIGHT)
+deployment_search_btn = tkinter.Button(per_info_frame, text="Search DEPLOYMENT", image=search_icon, bg="#a3c2c2", compound=RIGHT,
+                                       command=lambda: [reset_i(), search_master('search_deployment_btn')])
+deployment_search_btn.grid(row=9, column=4, sticky='news')
+trade_search_btn = tkinter.Button(per_info_frame, text="Search TRADE", image=search_icon, bg="#a3c2c2", compound=RIGHT,
+                                  command=lambda: [reset_i(), search_master('search_trade_btn')])
 trade_search_btn.grid(row=6, column=5, columnspan=2, sticky='news')
-corps_search_btn = tkinter.Button(per_info_frame, text="Search CORPS", image=search_icon, bg="#a3c2c2", compound=RIGHT)
+corps_search_btn = tkinter.Button(per_info_frame, text="Search CORPS", image=search_icon, bg="#a3c2c2", compound=RIGHT,
+                                  command=lambda: [reset_i(), search_master('search_corps_btn')])
 corps_search_btn.grid(row=7, column=5, columnspan=2, sticky='news')
-appointment_search_btn = tkinter.Button(per_info_frame, text="Search APPOINTMENT", image=search_icon, bg="#a3c2c2", compound=RIGHT)
+appointment_search_btn = tkinter.Button(per_info_frame, text="Search APPOINTMENT", image=search_icon, bg="#a3c2c2", compound=RIGHT,
+                                        command=lambda: [reset_i(), search_master('search_appointment_btn')])
 appointment_search_btn.grid(row=8, column=5, columnspan=2, sticky='news')
-deployment_search_btn = tkinter.Button(per_info_frame, text="Search GENDER", image=search_icon, bg="#a3c2c2", compound=RIGHT)
-deployment_search_btn.grid(row=9, column=5, columnspan=2, sticky='news')
+gender_search_btn = tkinter.Button(per_info_frame, text="Search GENDER", image=search_icon, bg="#a3c2c2", compound=RIGHT,
+                                   command=lambda: [reset_i(), search_master('search_gender_btn')])
+gender_search_btn.grid(row=9, column=5, columnspan=2, sticky='news')
 
 for widget in per_info_frame.winfo_children():
     widget.grid_configure(padx=10, pady=2)
