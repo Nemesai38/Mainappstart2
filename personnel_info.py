@@ -117,6 +117,7 @@ def reg_per():
 # Function to clear all input fields at will
 def clear_all_fields():
     global img_label
+    Serial_Number.set(0)
     army_no_entry.delete(0, 'end')
     rank_entry.set('')
     first_name_entry.delete(0, 'end')
@@ -142,7 +143,7 @@ def go_back():
 # Function to set form to initial state
 def restart():
     python = sys.executable
-    os.execl(python,python, * sys.argv)
+    os.execl(python, python, * sys.argv)
 
 
 # ################### Command to start to view database on form ##################
@@ -164,7 +165,10 @@ def peruse_database():
         pass
     conn = sqlite3.connect('data.db')
     cursor = conn.cursor()
-    c = cursor.execute("SELECT * FROM Personnel_Info")
+    c = cursor.execute("SELECT * FROM Personnel_Info ORDER BY CASE rank WHEN 'Brig Gen' THEN 0 WHEN 'Col' THEN 1 WHEN 'Lt Col' THEN 2 \
+                       WHEN 'Maj' THEN 3 WHEN 'Capt' THEN 4 WHEN 'Lt' THEN 5 WHEN '2Lt' THEN 6 WHEN 'AWO' THEN 7 WHEN 'MWO' THEN 8 \
+                       WHEN 'WO' THEN 9 WHEN 'SSgt' THEN 10 WHEN 'Sgt' THEN 11 WHEN 'Cpl' THEN 12 WHEN 'LCpl' THEN 13 \
+                       WHEN 'Pte'  THEN 14 END, armynumber ASC")
     r = c.fetchall()
 
     Serial_Number.set(r[i][0])
@@ -193,6 +197,7 @@ def peruse_database():
     return
 
 
+# function to get max rows for scrolling through database
 def get_max_rows():
     conn = sqlite3.connect('data.db')
     cursor = conn.cursor()
@@ -204,6 +209,7 @@ def get_max_rows():
     return total_row
 
 
+# #################### functions to scroll through whole database results #############################
 def next_personnel():
     global i
     if Army_Number.get() == "":
@@ -298,11 +304,13 @@ def delete_record():
             del_serial = Serial_Number.get()
             connection = sqlite3.connect('data.db')
             cursor = connection.cursor()
-            cursor.execute("DELETE FROM Personnel_Info WHERE serial = ?", f'{del_serial}')
+            cursor.execute("DELETE FROM Personnel_Info WHERE serial = ?", (f'{del_serial}',))
             connection.commit()
             cursor.close()
             connection.close()
             tkinter.messagebox.showinfo("Done", "Personnel deleted Successfully!")
+            clear_all_fields()
+            reset_i()
         else:
             pass
         return
@@ -383,7 +391,8 @@ def search_master(button):
         match button:
             case 'search_army_no_btn':
                 cursor = connection.cursor()
-                army_no_search_result = cursor.execute("SELECT * FROM Personnel_Info WHERE armynumber LIKE ?", (f'%{search_string}%',))
+                army_no_search_result = cursor.execute("SELECT * FROM Personnel_Info WHERE armynumber LIKE ?",
+                                                       (f'%{search_string}%',))
                 search_result = army_no_search_result.fetchall()
                 search_next_btn = tkinter.Button(per_info_frame, text='Next', bg="#93c47d", command=lambda: next_per(
                     'search_army_no_btn'))
@@ -393,7 +402,8 @@ def search_master(button):
                 search_prev_btn.grid(row=6, column=3, sticky='w')
             case 'search_rank_btn':
                 cursor = connection.cursor()
-                rank_search_result = cursor.execute(f"SELECT * FROM Personnel_Info WHERE rank LIKE ?", (search_string,))
+                rank_search_result = cursor.execute(f"SELECT * FROM Personnel_Info WHERE rank LIKE ? ORDER BY armynumber ASC",
+                                                    (search_string,))
                 search_result = rank_search_result.fetchall()
                 search_next_btn = tkinter.Button(per_info_frame, text='Next', bg="#93c47d", command=lambda: next_per(
                     'search_rank_btn'))
@@ -403,7 +413,11 @@ def search_master(button):
                 search_prev_btn.grid(row=6, column=3, sticky='w')
             case 'search_deployment_btn':
                 cursor = connection.cursor()
-                deployment_search_result = cursor.execute(f"SELECT * FROM Personnel_Info WHERE deployment LIKE ?", (search_string,))
+                deployment_search_result = cursor.execute(f"SELECT * FROM Personnel_Info WHERE deployment LIKE ? ORDER BY CASE \
+                                                          rank WHEN 'Brig Gen' THEN 0 WHEN 'Col' THEN 1 WHEN 'Lt Col' THEN 2 \
+                       WHEN 'Maj' THEN 3 WHEN 'Capt' THEN 4 WHEN 'Lt' THEN 5 WHEN '2Lt' THEN 6 WHEN 'AWO' THEN 7 WHEN 'MWO' THEN 8 \
+                       WHEN 'WO' THEN 9 WHEN 'SSgt' THEN 10 WHEN 'Sgt' THEN 11 WHEN 'Cpl' THEN 12 WHEN 'LCpl' THEN 13 \
+                       WHEN 'Pte'  THEN 14 END, armynumber ASC", (search_string,))
                 search_result = deployment_search_result.fetchall()
                 search_next_btn = tkinter.Button(per_info_frame, text='Next', bg="#93c47d", command=lambda: next_per(
                     'search_deployment_btn'))
@@ -413,7 +427,11 @@ def search_master(button):
                 search_prev_btn.grid(row=6, column=3, sticky='w')
             case 'search_trade_btn':
                 cursor = connection.cursor()
-                trade_search_result = cursor.execute(f"SELECT * FROM Personnel_Info WHERE trade LIKE ?", (f'%{search_string}%',))
+                trade_search_result = cursor.execute(f"SELECT * FROM Personnel_Info WHERE trade LIKE ? ORDER BY CASE rank WHEN \
+                                                     'Brig Gen' THEN 0 WHEN 'Col' THEN 1 WHEN 'Lt Col' THEN 2 \
+                       WHEN 'Maj' THEN 3 WHEN 'Capt' THEN 4 WHEN 'Lt' THEN 5 WHEN '2Lt' THEN 6 WHEN 'AWO' THEN 7 WHEN 'MWO' THEN 8 \
+                       WHEN 'WO' THEN 9 WHEN 'SSgt' THEN 10 WHEN 'Sgt' THEN 11 WHEN 'Cpl' THEN 12 WHEN 'LCpl' THEN 13 \
+                       WHEN 'Pte'  THEN 14 END, armynumber ASC", (f'%{search_string}%',))
                 search_result = trade_search_result.fetchall()
                 search_next_btn = tkinter.Button(per_info_frame, text='Next', bg="#93c47d", command=lambda: next_per(
                     'search_trade_btn'))
@@ -423,7 +441,11 @@ def search_master(button):
                 search_prev_btn.grid(row=6, column=3, sticky='w')
             case 'search_corps_btn':
                 cursor = connection.cursor()
-                corps_search_result = cursor.execute(f"SELECT * FROM Personnel_Info WHERE corps LIKE ?", (f'%{search_string}%',))
+                corps_search_result = cursor.execute(f"SELECT * FROM Personnel_Info WHERE corps LIKE ? ORDER BY CASE rank WHEN \
+                                                      'Brig Gen' THEN 0 WHEN 'Col' THEN 1 WHEN 'Lt Col' THEN 2 \
+                       WHEN 'Maj' THEN 3 WHEN 'Capt' THEN 4 WHEN 'Lt' THEN 5 WHEN '2Lt' THEN 6 WHEN 'AWO' THEN 7 WHEN 'MWO' THEN 8 \
+                       WHEN 'WO' THEN 9 WHEN 'SSgt' THEN 10 WHEN 'Sgt' THEN 11 WHEN 'Cpl' THEN 12 WHEN 'LCpl' THEN 13 \
+                       WHEN 'Pte'  THEN 14 END, armynumber ASC", (f'%{search_string}%',))
                 search_result = corps_search_result.fetchall()
                 search_next_btn = tkinter.Button(per_info_frame, text='Next', bg="#93c47d", command=lambda: next_per(
                     'search_corps_btn'))
@@ -444,7 +466,11 @@ def search_master(button):
                 search_prev_btn.grid(row=6, column=3, sticky='w')
             case 'search_gender_btn':
                 cursor = connection.cursor()
-                gender_search_result = cursor.execute("SELECT * FROM Personnel_Info WHERE LOWER(sex) = ?", (search_string,))
+                gender_search_result = cursor.execute("SELECT * FROM Personnel_Info WHERE LOWER(sex) = ? ORDER BY CASE rank WHEN \
+                                                      'Brig Gen' THEN 0 WHEN 'Col' THEN 1 WHEN 'Lt Col' THEN 2 \
+                       WHEN 'Maj' THEN 3 WHEN 'Capt' THEN 4 WHEN 'Lt' THEN 5 WHEN '2Lt' THEN 6 WHEN 'AWO' THEN 7 WHEN 'MWO' THEN 8 \
+                       WHEN 'WO' THEN 9 WHEN 'SSgt' THEN 10 WHEN 'Sgt' THEN 11 WHEN 'Cpl' THEN 12 WHEN 'LCpl' THEN 13 \
+                       WHEN 'Pte'  THEN 14 END, armynumber ASC", (search_string,))
                 search_result = gender_search_result.fetchall()
                 search_next_btn = tkinter.Button(per_info_frame, text='Next', bg="#93c47d", command=lambda: next_per(
                     'search_gender_btn'))
