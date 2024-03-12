@@ -1,9 +1,10 @@
 import io
 import tkinter
+import os
+import sys
 from tkinter import ttk
 from tkinter import *
 import sqlite3
-import os
 from PIL import ImageTk, Image
 from tkinter import messagebox
 from tkinter import filedialog
@@ -30,9 +31,13 @@ def upload_img():
     filename = filedialog.askopenfilename(initialdir=os.getcwd(), title="Select Photo File", filetypes=(("JPG File", "*.jpg"),
                                                                                                         ("PNG File", "*.png"),
                                                                                                         ("All Files", "*.txt")))
+    img_label = Label(per_img_frame, image=photo)
+    img_label.place(x=0, y=0)
     try:
         img_name = Image.open(filename)
-        resized_photo = img_name.resize((300, 310))
+        size = (300, 310)
+        resized_photo = img_name.resize(size)
+        resized_photo.save(filename)
         photo2 = ImageTk.PhotoImage(resized_photo)
         img_label.config(image=photo2)
         img_label = photo2
@@ -131,7 +136,13 @@ def clear_all_fields():
 # Function to return to DB Hub (close dialog box at the moment)
 def go_back():
     window.destroy()
-    pass
+    return
+
+
+# Function to set form to initial state
+def restart():
+    python = sys.executable
+    os.execl(python,python, * sys.argv)
 
 
 # ################### Command to start to view database on form ##################
@@ -171,10 +182,9 @@ def peruse_database():
     address_entry.insert(INSERT, r[i][12])
     Marital_Status_radio.set(r[i][13])
     blob_image = r[i][14]
-    blob = io.BytesIO(r[i][14])
+    blob = io.BytesIO(blob_image)
     image = Image.open(blob)
-    resized_photo = image.resize((300, 310))
-    per_image = ImageTk.PhotoImage(resized_photo)
+    per_image = ImageTk.PhotoImage(image)
     img_label.config(image=per_image)
     img_label = per_image
 
@@ -230,6 +240,11 @@ def update_record():
         tkinter.messagebox.showerror(title="Error", message="Please select Marital Status")
     else:
         # User Info
+        try:
+            with open(filename, 'rb') as file:
+                photo_image = file.read()
+        except NameError:
+            pass
         serial = Serial_Number.get()
         army_number = Army_Number.get()
         rank = Rank.get()
@@ -245,7 +260,7 @@ def update_record():
         address = address_entry.get("1.0", 'end-1c')
         marital_status = Marital_Status_radio.get()
         try:
-            image = blob_image
+            image = photo_image
         except NameError:
             image = ""
 
@@ -277,7 +292,7 @@ def delete_record():
     if Serial_Number.get() == 0:
         tkinter.messagebox.showerror("Error", "First Select a Personnel")
     else:
-        decision = tkinter.messagebox.askyesno("Confirm Removal", "Personnel information will not be recoverable\nClick "
+        decision = tkinter.messagebox.askyesno("Confirm Removal", "Personnel information will not be recoverable!\nClick "
                                                "Yes to confirm deletion")
         if decision:
             del_serial = Serial_Number.get()
@@ -287,7 +302,7 @@ def delete_record():
             connection.commit()
             cursor.close()
             connection.close()
-            tkinter.messagebox.showinfo("Done", "")
+            tkinter.messagebox.showinfo("Done", "Personnel deleted Successfully!")
         else:
             pass
         return
@@ -327,10 +342,9 @@ def input_function(r):
     address_entry.insert(INSERT, r[i][12])
     Marital_Status_radio.set(r[i][13])
     blob_image = r[i][14]
-    blob = io.BytesIO(r[i][14])
+    blob = io.BytesIO(blob_image)
     image = Image.open(blob)
-    resized_photo = image.resize((300, 310))
-    per_image = ImageTk.PhotoImage(resized_photo)
+    per_image = ImageTk.PhotoImage(image)
     img_label.config(image=per_image)
     img_label = per_image
 
@@ -608,6 +622,8 @@ delete_personnel_btn = tkinter.Button(per_info_frame, text="REMOVE PERSONNEL", b
 delete_personnel_btn.grid(row=6, column=1, sticky='news')
 
 # Peruse database buttons
+restart_btn = tkinter.Button(per_info_frame, text="RETURN TO INPUT PERSONNEL", bg="#45818e", command=restart, font="Arial, 7")
+restart_btn.grid(row=8, column=1)
 peruse_db_btn = tkinter.Button(per_info_frame, text="PERUSE DATABASE", bg="#45818e", command=lambda: [peruse_database(), reset_i()])
 peruse_db_btn.grid(row=9, column=1)
 icon1 = PhotoImage(file="icons/arrow-left-bold-circle-outline.png")
