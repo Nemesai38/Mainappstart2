@@ -232,12 +232,15 @@ def peruse_database():
     Trade.set(r[i][11])
     address_entry.insert(INSERT, r[i][12])
     Marital_Status_radio.set(r[i][13])
-    blob_image = r[i][14]
-    blob = io.BytesIO(blob_image)
-    image = Image.open(blob)
-    per_image = ImageTk.PhotoImage(image)
-    img_label.config(image=per_image)
-    img_label = per_image
+    try:
+        blob_image = r[i][14]
+        blob = io.BytesIO(blob_image)
+        image = Image.open(blob)
+        per_image = ImageTk.PhotoImage(image)
+        img_label.config(image=per_image)
+        img_label = per_image
+    except TypeError:
+        pass
 
     cursor.close()
     conn.close()
@@ -292,7 +295,6 @@ def update_record():
     elif Marital_Status_radio.get() == "":
         tkinter.messagebox.showerror(title="Error", message="Please select Marital Status")
     else:
-        # User Info
         try:
             with open(filename, 'rb') as file:
                 photo_image = file.read()
@@ -315,6 +317,8 @@ def update_record():
         try:
             image = photo_image
         except NameError:
+            image = blob_image
+        except Exception as e:
             image = ""
 
         # Connect to database
