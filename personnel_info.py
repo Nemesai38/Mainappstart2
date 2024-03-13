@@ -2,12 +2,15 @@ import io
 import tkinter
 import os
 import sys
+import sqlite3
+import pathlib
+import openpyxl
 from tkinter import ttk
 from tkinter import *
-import sqlite3
 from PIL import ImageTk, Image
 from tkinter import messagebox
 from tkinter import filedialog
+from openpyxl import Workbook
 
 
 # Main Window
@@ -20,7 +23,32 @@ window.resizable(False, False)
 frame = tkinter.Frame(window)
 frame.pack()
 
+# define i variable for indexing fetched db results
 i = 0
+
+# Excel file creation
+excel_file = pathlib.Path('Personnel_Info.xlsx')
+if excel_file.exists():
+    pass
+else:
+    excel_file = Workbook()
+    sheet = excel_file.active
+    sheet['A1'] = "Serial"
+    sheet['B1'] = "Army Number"
+    sheet['C1'] = "Rank"
+    sheet['D1'] = "First Name"
+    sheet['E1'] = "Last Name"
+    sheet['F1'] = "Gender"
+    sheet['G1'] = "Unit"
+    sheet['H1'] = "Corps"
+    sheet['I1'] = "Appointment"
+    sheet['J1'] = "Deployment"
+    sheet['K1'] = "State"
+    sheet['L1'] = "Trade"
+    sheet['M1'] = "Address"
+    sheet['N1'] = "Marital Status"
+
+    excel_file.save(r'Personnel_Info.xlsx')
 
 
 # Function to select image file from os
@@ -105,6 +133,25 @@ def reg_per():
         conn.commit()
         cursor.close()
         conn.close()
+
+        # entry into excel file
+        file = openpyxl.load_workbook('Personnel_Info.xlsx')
+        sheets = file.active
+        sheets.cell(column=1, row=sheets.max_row+1, value=sheets.max_row+1)
+        sheets.cell(column=2, row=sheets.max_row, value=army_number)
+        sheets.cell(column=3, row=sheets.max_row, value=rank)
+        sheets.cell(column=4, row=sheets.max_row, value=firstname)
+        sheets.cell(column=5, row=sheets.max_row, value=lastname)
+        sheets.cell(column=6, row=sheets.max_row, value=sex)
+        sheets.cell(column=7, row=sheets.max_row, value=unit)
+        sheets.cell(column=8, row=sheets.max_row, value=corps)
+        sheets.cell(column=9, row=sheets.max_row, value=appointment)
+        sheets.cell(column=10, row=sheets.max_row, value=deployment)
+        sheets.cell(column=11, row=sheets.max_row, value=state)
+        sheets.cell(column=12, row=sheets.max_row, value=trade)
+        sheets.cell(column=13, row=sheets.max_row, value=address)
+        sheets.cell(column=14, row=sheets.max_row, value=marital_status)
+        file.save(r'Personnel_Info.xlsx')
 
         # Notify info entry success
         tkinter.messagebox.showinfo(title="DONE", message="Personnel has been registered successfully")
@@ -285,6 +332,32 @@ def update_record():
         cursor.close()
         conn.close()
 
+        # Entry into Excel File
+        file = openpyxl.load_workbook('Personnel_Info.xlsx')
+        sheets = file.active
+
+        column_b = sheets['B']
+
+        for cell in column_b:
+            if cell.value == army_number:
+                row = cell.row
+
+        sheets.cell(column=1, row=row, value=serial)
+        sheets.cell(column=2, row=row, value=army_number)
+        sheets.cell(column=3, row=row, value=rank)
+        sheets.cell(column=4, row=row, value=firstname)
+        sheets.cell(column=5, row=row, value=lastname)
+        sheets.cell(column=6, row=row, value=sex)
+        sheets.cell(column=7, row=row, value=unit)
+        sheets.cell(column=8, row=row, value=corps)
+        sheets.cell(column=9, row=row, value=appointment)
+        sheets.cell(column=10, row=row, value=deployment)
+        sheets.cell(column=11, row=row, value=state)
+        sheets.cell(column=12, row=row, value=trade)
+        sheets.cell(column=13, row=row, value=address)
+        sheets.cell(column=14, row=row, value=marital_status)
+        file.save(r'Personnel_Info.xlsx')
+
         # Notify info entry success
         tkinter.messagebox.showinfo(title="DONE", message="Personnel record updated successfully")
 
@@ -424,6 +497,20 @@ def search_master(button):
                 search_next_btn.grid(row=6, column=3, sticky='e')
                 search_prev_btn = tkinter.Button(per_info_frame, text='Back ', bg="#93c47d", command=lambda: prev_per(
                     'search_deployment_btn'))
+                search_prev_btn.grid(row=6, column=3, sticky='w')
+            case 'search_state_btn':
+                cursor = connection.cursor()
+                state_search_result = cursor.execute("SELECT * FROM Personnel_Info WHERE state LIKE ? ORDER BY CASE \
+                                                          rank WHEN 'Brig Gen' THEN 0 WHEN 'Col' THEN 1 WHEN 'Lt Col' THEN 2 \
+                       WHEN 'Maj' THEN 3 WHEN 'Capt' THEN 4 WHEN 'Lt' THEN 5 WHEN '2Lt' THEN 6 WHEN 'AWO' THEN 7 WHEN 'MWO' THEN 8 \
+                       WHEN 'WO' THEN 9 WHEN 'SSgt' THEN 10 WHEN 'Sgt' THEN 11 WHEN 'Cpl' THEN 12 WHEN 'LCpl' THEN 13 \
+                       WHEN 'Pte'  THEN 14 END, armynumber ASC", (search_string,))
+                search_result = state_search_result.fetchall()
+                search_next_btn = tkinter.Button(per_info_frame, text='Next', bg="#93c47d", command=lambda: next_per(
+                    'search_state_btn'))
+                search_next_btn.grid(row=6, column=3, sticky='e')
+                search_prev_btn = tkinter.Button(per_info_frame, text='Back ', bg="#93c47d", command=lambda: prev_per(
+                    'search_state_btn'))
                 search_prev_btn.grid(row=6, column=3, sticky='w')
             case 'search_trade_btn':
                 cursor = connection.cursor()
@@ -667,16 +754,19 @@ search_string_entry.grid(row=8, column=3, sticky='w')
 search_icon = PhotoImage(file="icons/search.png")
 name_search_btn = tkinter.Button(per_info_frame, text="Search NAME", image=search_icon, bg="#a3c2c2", compound=RIGHT,
                                  command=search_database_name)
-name_search_btn.grid(row=6, column=4, sticky='news')
+name_search_btn.grid(row=9, column=3, sticky='news')
 army_number_search_btn = tkinter.Button(per_info_frame, text="Search ARMY NUMBER", image=search_icon, bg="#a3c2c2", compound=RIGHT,
                                         command=lambda: [reset_i(), search_master('search_army_no_btn')])
-army_number_search_btn.grid(row=7, column=4, sticky='news')
+army_number_search_btn.grid(row=6, column=4, sticky='news')
 rank_search_btn = tkinter.Button(per_info_frame, text="Search RANK", image=search_icon, bg="#a3c2c2", compound=RIGHT,
                                  command=lambda: [reset_i(), search_master('search_rank_btn')])
-rank_search_btn.grid(row=8, column=4, sticky='news')
+rank_search_btn.grid(row=7, column=4, sticky='news')
 deployment_search_btn = tkinter.Button(per_info_frame, text="Search DEPLOYMENT", image=search_icon, bg="#a3c2c2", compound=RIGHT,
                                        command=lambda: [reset_i(), search_master('search_deployment_btn')])
-deployment_search_btn.grid(row=9, column=4, sticky='news')
+deployment_search_btn.grid(row=8, column=4, sticky='news')
+state_search_btn = tkinter.Button(per_info_frame, text="Search STATE", image=search_icon, bg="#a3c2c2", compound=RIGHT,
+                                  command=lambda: [reset_i(), search_master('search_state_btn')])
+state_search_btn.grid(row=9, column=4, sticky='news')
 trade_search_btn = tkinter.Button(per_info_frame, text="Search TRADE", image=search_icon, bg="#a3c2c2", compound=RIGHT,
                                   command=lambda: [reset_i(), search_master('search_trade_btn')])
 trade_search_btn.grid(row=6, column=5, columnspan=2, sticky='news')
