@@ -342,25 +342,28 @@ def update_record():
 
         column_b = sheets['B']
 
-        for cell in column_b:
-            if cell.value == army_number:
-                row = cell.row
+        try:
+            for cell in column_b:
+                if cell.value == army_number:
+                    row = cell.row
 
-        sheets.cell(column=1, row=row, value=serial)
-        sheets.cell(column=2, row=row, value=army_number)
-        sheets.cell(column=3, row=row, value=rank)
-        sheets.cell(column=4, row=row, value=firstname)
-        sheets.cell(column=5, row=row, value=lastname)
-        sheets.cell(column=6, row=row, value=sex)
-        sheets.cell(column=7, row=row, value=unit)
-        sheets.cell(column=8, row=row, value=corps)
-        sheets.cell(column=9, row=row, value=appointment)
-        sheets.cell(column=10, row=row, value=deployment)
-        sheets.cell(column=11, row=row, value=state)
-        sheets.cell(column=12, row=row, value=trade)
-        sheets.cell(column=13, row=row, value=address)
-        sheets.cell(column=14, row=row, value=marital_status)
-        file.save(r'Personnel_Info.xlsx')
+            sheets.cell(column=1, row=row, value=serial)
+            sheets.cell(column=2, row=row, value=army_number)
+            sheets.cell(column=3, row=row, value=rank)
+            sheets.cell(column=4, row=row, value=firstname)
+            sheets.cell(column=5, row=row, value=lastname)
+            sheets.cell(column=6, row=row, value=sex)
+            sheets.cell(column=7, row=row, value=unit)
+            sheets.cell(column=8, row=row, value=corps)
+            sheets.cell(column=9, row=row, value=appointment)
+            sheets.cell(column=10, row=row, value=deployment)
+            sheets.cell(column=11, row=row, value=state)
+            sheets.cell(column=12, row=row, value=trade)
+            sheets.cell(column=13, row=row, value=address)
+            sheets.cell(column=14, row=row, value=marital_status)
+            file.save(r'Personnel_Info.xlsx')
+        except UnboundLocalError:
+            pass
 
         # Notify info entry success
         tkinter.messagebox.showinfo(title="DONE", message="Personnel record updated successfully")
